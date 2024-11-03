@@ -2,6 +2,7 @@ package marketdata
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -1359,6 +1360,48 @@ func (c *Client) GetCorporateActions(req GetCorporateActionsRequest) (CorporateA
 		q.Set("page_token", *casResp.NextPageToken)
 	}
 	return cas, nil
+}
+
+type GetAssetsRequest struct {
+	Status     string
+	AssetClass string
+	Exchange   string
+	Attributes []string
+}
+
+func (c *Client) GetAssets(req GetAssetsRequest) ([]Asset, error) {
+	u, err := url.Parse(fmt.Sprintf("%s/v2/assets", c.opts.BaseURL))
+	if err != nil {
+		return []Asset{}, err
+	}
+
+	q := u.Query()
+	if req.Status != "" {
+		q.Set("status", req.Status)
+	}
+	if req.AssetClass != "" {
+		q.Set("asset_class", req.AssetClass)
+	}
+	if req.Exchange != "" {
+		q.Set("exchange", req.Exchange)
+	}
+	if len(req.Attributes) > 0 {
+		q.Set("types", strings.Join(req.Attributes, ","))
+	}
+
+	u.RawQuery = q.Encode()
+
+	var assets []Asset
+	resp, err := c.get(u)
+	if err != nil {
+		return assets, err
+	}
+
+	defer resp.Body.Close()
+	if err = json.NewDecoder(resp.Body).Decode(&assets); err != nil {
+		return assets, err
+	}
+	return assets, nil
 }
 
 // GetTrades returns the trades for the given symbol.

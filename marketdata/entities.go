@@ -423,6 +423,31 @@ type OptionSnapshot struct {
 	ImpliedVolatility float64       `json:"impliedVolatility,omitempty"`
 	Greeks            *OptionGreeks `json:"greeks,omitempty"`
 }
+
+type AssetStatus string
+
+const (
+	AssetStatusActive   AssetStatus = "active"
+	AssetStatusInactive AssetStatus = "inactive"
+)
+
+type Asset struct {
+	ID                     string      `json:"id"`
+	Class                  string      `json:"class"`
+	Exchange               string      `json:"exchange"`
+	Symbol                 string      `json:"symbol"`
+	Name                   string      `json:"name"`
+	Status                 AssetStatus `json:"status"`
+	Tradable               bool        `json:"tradable"`
+	Marginable             bool        `json:"marginable"`
+	Shortable              bool        `json:"shortable"`
+	EasyToBorrow           bool        `json:"easy_to_borrow"`
+	Fractionable           bool        `json:"fractionable"`
+	MarginRequirementLong  string      `json:"margin_requirement_long"`
+	MarginRequirementShort string      `json:"margin_requirement_short"`
+	Attributes             []string    `json:"attributes"`
+}
+
 type multiTradeResponse struct {
 	NextPageToken *string            `json:"next_page_token"`
 	Trades        map[string][]Trade `json:"trades"`
